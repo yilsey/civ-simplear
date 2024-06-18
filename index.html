@@ -1,0 +1,100 @@
+<!-- For Part A: Cone Shape with Cone Texture -->
+
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Cone Demo</title>
+
+    <!-- three.js -->
+    <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
+</head>
+
+<body>
+
+    <button onclick="activateXR()">Cone Object</button>
+    <script>
+        async function activateXR() {
+            if (!navigator.xr) {
+                alert("WebXR not supported on this device or browser.");
+                return;
+            }
+
+            const canvas = document.createElement("canvas");
+            document.body.appendChild(canvas);
+            const gl = canvas.getContext("webgl", { xrCompatible: true });
+
+            const scene = new THREE.Scene();
+
+            // Create a cone
+            const loader = new THREE.TextureLoader();
+            const texture = loader.load("marciano.jpg");
+            const coneGeom = new THREE.ConeGeometry(0.2, 0.4, 32); // Adjusted size for AR
+            const coneMaterial = new THREE.MeshStandardMaterial({ map: texture });
+            const cone = new THREE.Mesh(coneGeom, coneMaterial);
+            cone.position.set(0, 0, -1); // Position cone 1 meter in front of the camera initially
+            scene.add(cone);
+
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(1, 1, 1).normalize();
+            scene.add(directionalLight);
+
+            const renderer = new THREE.WebGLRenderer({
+                alpha: true,
+                preserveDrawingBuffer: true,
+                canvas: canvas,
+                context: gl
+            });
+            renderer.autoClear = false;
+
+            const camera = new THREE.PerspectiveCamera();
+            camera.matrixAutoUpdate = false;
+
+            try {
+                const session = await navigator.xr.requestSession("immersive-ar");
+                session.updateRenderState({
+                    baseLayer: new XRWebGLLayer(session, gl)
+                });
+
+                const referenceSpace = await session.requestReferenceSpace('local');
+
+                const onXRFrame = (time, frame) => {
+                    session.requestAnimationFrame(onXRFrame);
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, session.renderState.baseLayer.framebuffer);
+
+                    const pose = frame.getViewerPose(referenceSpace);
+                    if (pose) {
+                        const view = pose.views[0];
+                        const viewport = session.renderState.baseLayer.getViewport(view);
+                        renderer.setSize(viewport.width, viewport.height);
+
+                        camera.matrix.fromArray(view.transform.matrix);
+                        camera.projectionMatrix.fromArray(view.projectionMatrix);
+                        camera.updateMatrixWorld(true);
+
+                        // Update cone position relative to camera
+                        const cameraPosition = new THREE.Vector3();
+                        camera.getWorldPosition(cameraPosition);
+                        cone.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z - 1);
+                        cone.quaternion.copy(camera.quaternion);
+
+                        renderer.render(scene, camera);
+                    }
+                }
+                session.requestAnimationFrame(onXRFrame);
+            } catch (err) {
+                console.error("Failed to start AR session:", err);
+                alert("Failed to start AR session: " + err.message);
+            }
+        }
+    </script>
+</body>
+
+</html>
