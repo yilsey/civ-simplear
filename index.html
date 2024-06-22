@@ -31,7 +31,7 @@
 
             // Create a cone
             const loader = new THREE.TextureLoader();
-            const texture = loader.load("cone.jpg"); // Prueba con cone.jpg
+            const texture = loader.load("marciano.jpg"); //  cone.jpg
             const coneGeom = new THREE.ConeGeometry(0.2, 0.4, 32); // Adjusted size for AR
             const coneMaterial = new THREE.MeshStandardMaterial({ map: texture });
             const cone = new THREE.Mesh(coneGeom, coneMaterial);
