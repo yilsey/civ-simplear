@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title>Cone Demo</title>
+    <title>Marciano the Great</title>
 
     <!-- three.js -->
     <script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
@@ -31,7 +31,7 @@
 
             // Create a cone
             const loader = new THREE.TextureLoader();
-            const texture = loader.load("marciano.jpg");
+            const texture = loader.load("cone.jpg"); // Prueba con cone.jpg
             const coneGeom = new THREE.ConeGeometry(0.2, 0.4, 32); // Adjusted size for AR
             const coneMaterial = new THREE.MeshStandardMaterial({ map: texture });
             const cone = new THREE.Mesh(coneGeom, coneMaterial);
@@ -98,3 +98,4 @@
 </body>
 
 </html>
+
