@@ -1,5 +1,3 @@
-<!-- For Part A: Cone Shape with Cone Texture -->
-
 <!doctype html>
 <html>
 
@@ -31,12 +29,18 @@
 
             // Create a figure to display the image
             const loader = new THREE.TextureLoader();
-            const texture = loader.load("marciano.jpg"); //  cone.jpg
-            const coneGeom = new THREE.ConeGeometry(0.2, 0.4, 32); // Adjusted size for AR
-            const coneMaterial = new THREE.MeshStandardMaterial({ map: texture });
-            const cone = new THREE.Mesh(coneGeom, coneMaterial);
-            cone.position.set(0, 0, -1); // Position cone 1 meter in front of the camera initially
-            scene.add(cone);
+            const texture = loader.load("marciano.jpg"); // Use your texture file here
+            const triangleGeom = new THREE.BufferGeometry();
+            const vertices = new Float32Array([
+                0.0, 0.5, 0.0,  // Top vertex
+                -0.5, -0.5, 0.0, // Bottom left vertex
+                0.5, -0.5, 0.0   // Bottom right vertex
+            ]);
+            triangleGeom.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            const triangleMaterial = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+            const triangle = new THREE.Mesh(triangleGeom, triangleMaterial);
+            triangle.position.set(0, 0, -1); // Position triangle 1 meter in front of the camera initially
+            scene.add(triangle);
 
             // Add lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -79,11 +83,11 @@
                         camera.projectionMatrix.fromArray(view.projectionMatrix);
                         camera.updateMatrixWorld(true);
 
-                        // Update cone position relative to camera
+                        // Update triangle position relative to camera
                         const cameraPosition = new THREE.Vector3();
                         camera.getWorldPosition(cameraPosition);
-                        cone.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z - 1);
-                        cone.quaternion.copy(camera.quaternion);
+                        triangle.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z - 1);
+                        triangle.quaternion.copy(camera.quaternion);
 
                         renderer.render(scene, camera);
                     }
@@ -98,4 +102,5 @@
 </body>
 
 </html>
+
 
